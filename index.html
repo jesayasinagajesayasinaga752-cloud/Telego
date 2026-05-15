@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel • Telegram Go</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #0c0f20 0%, #070915 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .card {
+            max-width: 550px;
+            width: 100%;
+            background: rgba(18, 24, 44, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #eef5ff;
+            margin-bottom: 0.5rem;
+        }
+        .sub {
+            color: #9bb5e0;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            border-left: 2px solid #3b82f6;
+            padding-left: 0.8rem;
+        }
+        label {
+            font-size: 0.8rem;
+            color: #c3dbff;
+            display: block;
+            margin-bottom: 6px;
+        }
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 1.5rem;
+            border: none;
+            background: #10162e;
+            color: white;
+            font-size: 0.85rem;
+            font-family: monospace;
+            margin-bottom: 1rem;
+        }
+        button {
+            background: #2563eb;
+            border: none;
+            border-radius: 2rem;
+            padding: 0.6rem 1.4rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 0.8rem;
+            transition: 0.2s;
+        }
+        button.reset-btn { background: #334155; }
+        button:hover { opacity: 0.9; transform: scale(0.98); }
+        .status {
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            color: #a5f0c0;
+        }
+        .info {
+            margin-top: 1.5rem;
+            font-size: 0.7rem;
+            color: #7e93b5;
+            text-align: center;
+            border-top: 1px dashed rgba(255,255,255,0.1);
+            padding-top: 1rem;
+        }
+        .current-link {
+            background: #0f142a;
+            border-radius: 1rem;
+            padding: 0.6rem;
+            margin: 1rem 0;
+            font-size: 0.7rem;
+            word-break: break-all;
+            color: #b9d0ff;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2><i class="fas fa-cog"></i> Admin Panel</h2>
+    <div class="sub">Ganti link download aplikasi Telegram Go</div>
+
+    <label>🔗 URL Download (APK / installer)</label>
+    <input type="text" id="urlInput" placeholder="https://contoh.com/telegramgo.apk">
+
+    <button id="saveBtn"><i class="fas fa-save"></i> Simpan URL</button>
+    <button id="resetBtn" class="reset-btn"><i class="fas fa-undo-alt"></i> Reset ke default</button>
+
+    <div class="current-link" id="currentLinkDisplay">
+        <i class="fas fa-link"></i> Link saat ini: <span id="currentUrlText">-</span>
+    </div>
+
+    <div id="statusMsg" class="status"></div>
+    <div class="info">
+        <i class="fas fa-info-circle"></i> URL akan tersimpan di browser (localStorage).<br>
+        Halaman <strong>index.html</strong> akan otomatis menggunakan link ini untuk tombol install.
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEY = "telegramgo_download_url";
+    const DEFAULT_URL = "https://telegram-go.example/download.apk";
+
+    const urlInput = document.getElementById("urlInput");
+    const saveBtn = document.getElementById("saveBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const statusDiv = document.getElementById("statusMsg");
+    const currentUrlSpan = document.getElementById("currentUrlText");
+
+    function loadCurrentUrl() {
+        let saved = localStorage.getItem(STORAGE_KEY);
+        let current = (saved && saved.trim() !== "") ? saved : DEFAULT_URL;
+        urlInput.value = current;
+        currentUrlSpan.innerText = current;
+    }
+
+    function saveUrl(newUrl) {
+        if (!newUrl || newUrl.trim() === "") {
+            statusDiv.innerText = "❌ URL tidak boleh kosong!";
+            statusDiv.style.color = "#ffaaaa";
+            setTimeout(() => statusDiv.innerText = "", 2000);
+            return false;
+        }
+        if (!newUrl.startsWith("http://") && !newUrl.startsWith("https://")) {
+            statusDiv.innerText = "⚠️ URL harus diawali http:// atau https://";
+            statusDiv.style.color = "#ffaaaa";
+            setTimeout(() => statusDiv.innerText = "", 2000);
+            return false;
+        }
+        localStorage.setItem(STORAGE_KEY, newUrl);
+        statusDiv.innerText = "✅ Link berhasil disimpan!";
+        statusDiv.style.color = "#a5f0c0";
+        setTimeout(() => statusDiv.innerText = "", 2500);
+        loadCurrentUrl();
+        return true;
+    }
+
+    function resetToDefault() {
+        localStorage.setItem(STORAGE_KEY, DEFAULT_URL);
+        statusDiv.innerText = "↺ Link direset ke default.";
+        statusDiv.style.color = "#ffd966";
+        setTimeout(() => statusDiv.innerText = "", 2000);
+        loadCurrentUrl();
+    }
+
+    saveBtn.addEventListener("click", () => saveUrl(urlInput.value.trim()));
+    resetBtn.addEventListener("click", resetToDefault);
+
+    loadCurrentUrl();
+</script>
+</body>
+</html>
